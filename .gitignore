@@ -1,0 +1,8 @@
+/target/
+Users
+*.DS_Store
+
+# ECLIPSE
+.settings
+.classpath
+.project
