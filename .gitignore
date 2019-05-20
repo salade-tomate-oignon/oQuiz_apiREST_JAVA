@@ -6,3 +6,6 @@ Users
 .settings
 .classpath
 .project
+
+# VSCODE
+.vscode/
