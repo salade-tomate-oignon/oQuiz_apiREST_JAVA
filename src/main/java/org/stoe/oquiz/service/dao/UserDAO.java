@@ -9,11 +9,16 @@ import java.util.regex.Pattern;
 import org.stoe.oquiz.entity.User;
 
 public class UserDAO extends DAO<User> {
-
+    // **************************************************
+    // Constructors
+    // **************************************************
 	public UserDAO(Connection connect) {
 		super(connect);
 	}
 
+    // **************************************************
+    // Public methods
+    // **************************************************
 	@Override
 	public int create(User obj) {
 		if (this.connect == null) 
@@ -47,15 +52,32 @@ public class UserDAO extends DAO<User> {
 	}
 
 	@Override
-	public boolean update(User obj) {
-		return false;
+	public int update(User obj) {
+        int res = 0;
+
+        if (this.connect == null) 
+            return 1;
+
+        if (obj.getPassword().isEmpty()) 
+            res = this.updateWithoutPassword(obj);
+        else 
+            res = this.updateAll(obj);
+        
+		return res;
 	}
 
 	@Override
 	public User find(int id) {
 		return null;
-	}
+    }
 
+	/**
+     * Trouve les informations d'un utilisateur à partir de son pseudo 
+     * et de son mot de passe
+     * 
+	 * @param obj
+	 * @return
+	 */
 	public User findUserDataFromPseudoPassword(User obj) {
 		User res = null;
 		String query = "SELECT * FROM user WHERE pseudo = ? AND password = ?";
@@ -85,6 +107,58 @@ public class UserDAO extends DAO<User> {
 		}
 
 		return res;
-	}
+    }
+    
+    // **************************************************
+    // Private methods
+    // **************************************************
+    private int updateAll(User obj) {
+        
+        try {
+            String query = "UPDATE user SET first_name=?, last_name=?, pseudo=?, email=?, password=? WHERE id=?";
+            PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+            
+            preparedStmt.setString (1, obj.getFirstName());
+            preparedStmt.setString (2, obj.getLastName());
+            preparedStmt.setString (3, obj.getPseudo());
+            preparedStmt.setString (4, obj.getEmail());
+            preparedStmt.setString (5, obj.getPassword());
+            preparedStmt.setLong(6, obj.getId());
+            preparedStmt.execute();
+            preparedStmt.close();
+        } catch (SQLException e) {
+            System.out.println("service.dao.UserDAO.updateAll(): " + e.getMessage());
+            if (Pattern.compile("pseudo").matcher(e.getMessage()).find()) 
+                return 2;
+            if (Pattern.compile("email").matcher(e.getMessage()).find()) 
+                return 3;
+        }
+
+        return 0;
+    }
+    
+    private int updateWithoutPassword(User obj) {
+
+        try {
+            String query = "UPDATE user SET first_name=?, last_name=?, pseudo=?, email=? WHERE id=?";
+            PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+            
+            preparedStmt.setString (1, obj.getFirstName());
+            preparedStmt.setString (2, obj.getLastName());
+            preparedStmt.setString (3, obj.getPseudo());
+            preparedStmt.setString (4, obj.getEmail());
+            preparedStmt.setLong(5, obj.getId());
+            preparedStmt.execute();
+            preparedStmt.close();
+        } catch (SQLException e) {
+            System.out.println("service.dao.UserDAO.updateWithoutPassword(): " + e.getMessage());
+            if (Pattern.compile("pseudo").matcher(e.getMessage()).find()) 
+                return 2;
+            if (Pattern.compile("email").matcher(e.getMessage()).find()) 
+                return 3;
+        }
+
+        return 0;
+    }
 
 }

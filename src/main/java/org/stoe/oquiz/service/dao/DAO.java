@@ -28,7 +28,7 @@ public abstract class DAO<T> {
     * @param obj
     * @return boolean
     */
-    public abstract boolean update(T obj);
+    public abstract int update(T obj);
 
     /**
      * Méthode de recherche des informations
