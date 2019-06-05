@@ -2,7 +2,6 @@ package org.stoe.oquiz.service.implementation;
 
 import java.util.ArrayList;
 
-import javax.swing.text.html.parser.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -15,7 +14,7 @@ import org.stoe.oquiz.service.functionality.UserInterface;
 public class UserInterfaceImpl implements UserInterface {
 
     @Override
-    public Response signIn(User user) {
+    public Response signUp(User user) {
         ResponseBuilder resp = null;
         ArrayList<Error> err = new ArrayList<Error>();
 
@@ -51,7 +50,7 @@ public class UserInterfaceImpl implements UserInterface {
 
             switch (dao.create(user)) {
                 case 0:
-                    resp = Response.status(Response.Status.OK);
+                    resp = Response.status(Response.Status.CREATED);
                     break; 
                 case 1:
                     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
@@ -107,5 +106,48 @@ public class UserInterfaceImpl implements UserInterface {
         
         return resp.entity(err).build();
 	}
+
+    @Override
+    public Response update(User user, int id) {
+        ResponseBuilder resp = null;
+        ArrayList<Error> err = new ArrayList<Error>();
+
+        // On contrôle les données
+        if (user.getId() != id) {
+            resp = Response.status(Response.Status.UNAUTHORIZED);
+            err.add(new Error(1, "authentication problem"));
+            return resp.entity(err).build();
+        }
+
+        if(user.getFirstName().isEmpty() || user.getLastName().isEmpty()
+        || user.getPseudo().isEmpty() || user.getEmail().isEmpty()) {
+            resp = Response.status(Response.Status.BAD_REQUEST);
+            err.add(new Error(2, "lack of information or incorrect information"));
+            return resp.entity(err).build();
+        }
+
+        // Accès à la base de données
+        UserDAO dao = new UserDAO(Bdd.getConnection());
+
+        switch (dao.update(user)) {
+            case 0:
+                resp = Response.status(Response.Status.OK);
+                break; 
+            case 1:
+                resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                err.add(new Error(3, "internal server error"));
+                break;
+            case 2:
+                resp = Response.status(Response.Status.BAD_REQUEST);
+                err.add(new Error(4, "this pseudo is unavailable"));
+                break;
+            default:
+                resp = Response.status(Response.Status.BAD_REQUEST);
+                err.add(new Error(5, "this email is unavailable"));
+                break;
+        }
+
+        return resp.entity(err).header("Access-Control-Allow-Origin", "*").build();
+    }
 
 }

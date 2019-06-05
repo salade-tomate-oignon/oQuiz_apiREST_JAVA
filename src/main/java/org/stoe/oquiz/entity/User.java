@@ -3,7 +3,9 @@ package org.stoe.oquiz.entity;
 import java.util.regex.*;
 
 public class User {
-
+    // **************************************************
+    // Fields
+    // **************************************************
 	private int id;
 	private String firstName;
 	private String lastName;
@@ -12,6 +14,9 @@ public class User {
 	private String password;
 	private String avatarName;
 
+    // **************************************************
+    // Constructors
+    // **************************************************
 	public User() {
 		super();
 	}
@@ -46,10 +51,19 @@ public class User {
 		this.setPassword(password);
 	}
 
+    // **************************************************
+    // Getters and Setters
+    // **************************************************
+    /**
+	 * @return the avatar
+	 */
 	public String getAvatarName() {
 		return avatarName;
 	}
 
+    /**
+	 * @param avatarName the avatar to set
+	 */
 	public void setAvatarName(String avatarName) {
 		this.avatarName = avatarName;
 	}
@@ -136,29 +150,56 @@ public class User {
 	 */
 	public void setId(int id) {
 		this.id = id;
-	}
-
+    }
+    
+    // **************************************************
+    // Public methods
+    // **************************************************
+	/**
+     * Vérifie la validité d'un prénom
+     * 
+	 * @param firstName
+	 * @return boolean
+	 */
 	public static boolean checkFirstName(String firstName) {
-		Pattern p = Pattern.compile("^[a-zA-Z]{2}[a-zA-Z]*$");
+		Pattern p = Pattern.compile("^[a-zA-Z]{2,49}$");
 		Matcher m = p.matcher(firstName); 
 		
 		return m.matches();
 	}
 
+	/**
+     * Vérifie la validité d'un nom
+     * 
+	 * @param lastName
+	 * @return boolean
+	 */
 	public static boolean checkLastName(String lastName) {
-		Pattern p = Pattern.compile("^[a-zA-Z]{2}[a-zA-Z ]*$");
+		Pattern p = Pattern.compile("^[a-zA-Z]{2}[a-zA-Z ]{0,47}$");
 		Matcher m = p.matcher(lastName); 
 		
 		return m.matches();
 	}
 
+	/**
+     * Vérifie la validité d'un pseudo
+     * 
+	 * @param pseudo
+	 * @return boolean
+	 */
 	public static boolean checkPseudo(String pseudo) {
-		Pattern p = Pattern.compile("^[a-zA-Z]{2}[a-zA-Z]*$");
+		Pattern p = Pattern.compile("^[a-zA-Z]{2,49}$");
 		Matcher m = p.matcher(pseudo); 
 		
 		return m.matches();
 	}
 
+	/**
+     * Vérifie la validité d'un email
+     * 
+	 * @param email
+	 * @return boolean
+	 */
 	public static boolean checkEmail(String email) {
 		Pattern p = Pattern.compile("^[a-zA-Z0-9._-]{2,}@[a-z0-9._-]{2,}.[a-z]{2,4}$");
 		Matcher m = p.matcher(email); 
@@ -166,8 +207,14 @@ public class User {
 		return m.matches();
 	}
 
+	/**
+     * Vérifie la validité d'un mot de passe
+     * 
+	 * @param password
+	 * @return boolean
+	 */
 	public static boolean checkPassword(String password) {
-		Pattern p = Pattern.compile("^[a-zA-z0-9]{8,}$");
+		Pattern p = Pattern.compile("^[a-zA-z0-9]{8,49}$");
 		Matcher m = p.matcher(password); 
 		
 		return m.matches();
