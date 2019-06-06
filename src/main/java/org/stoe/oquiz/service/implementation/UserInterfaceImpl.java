@@ -147,7 +147,7 @@ public class UserInterfaceImpl implements UserInterface {
                 break;
         }
 
-        return resp.entity(err).header("Access-Control-Allow-Origin", "*").build();
+        return resp.entity(err).build();
     }
 
 }

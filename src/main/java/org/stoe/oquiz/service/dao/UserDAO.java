@@ -108,6 +108,30 @@ public class UserDAO extends DAO<User> {
 
 		return res;
     }
+
+    public int findIdFromPseudo(String pseudoFriend) {
+        int res = 0;
+		String query = "SELECT id FROM user WHERE pseudo = ?";
+		PreparedStatement preparedStmt;
+		ResultSet result;
+		
+		try {
+			preparedStmt = this.connect.prepareStatement(query);
+			preparedStmt.setString (1, pseudoFriend);
+			result = preparedStmt.executeQuery();
+			
+			if (result.next()){
+				res = result.getInt("id");
+            }
+			
+			preparedStmt.close();
+			result.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.UserDAO.findIdFromPseudo(): " + e.getMessage());
+		}
+
+		return res;
+    }
     
     // **************************************************
     // Private methods
