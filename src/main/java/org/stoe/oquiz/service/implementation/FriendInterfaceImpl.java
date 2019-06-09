@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.stoe.oquiz.common.Bdd;
 import org.stoe.oquiz.common.Error;
+import org.stoe.oquiz.entity.User;
 import org.stoe.oquiz.service.dao.FriendDAO;
 import org.stoe.oquiz.service.dao.UserDAO;
 import org.stoe.oquiz.service.functionality.FriendInterface;
@@ -78,5 +79,68 @@ public class FriendInterfaceImpl implements FriendInterface {
 
         return resp.entity(err).build();
 	}
+
+    @Override
+    public Response getAllfriendRequests(int userId) {
+        ResponseBuilder resp = null;
+        ArrayList<Error> err = new ArrayList<Error>();
+        ArrayList<User> result = new ArrayList<User>();
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        result = friendDAO.getFriendsFromStatus(userId, 0);
+
+        // Il n'y a pas d'erreur
+        if (result != null) {
+            return Response.status(Response.Status.OK).entity(result).build();
+        }
+
+        resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+        err.add(new Error(1, "internal server error"));
+        
+        return resp.entity(err).build();
+    }
+    
+    @Override
+    public Response getAllBlockedfriends(int userId) {
+        ResponseBuilder resp = null;
+        ArrayList<Error> err = new ArrayList<Error>();
+        ArrayList<User> result = new ArrayList<User>();
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        result = friendDAO.getFriendsFromStatus(userId, -2);
+
+        // Il n'y a pas d'erreur
+        if (result != null) {
+            return Response.status(Response.Status.OK).entity(result).build();
+        }
+
+        resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+        err.add(new Error(1, "internal server error"));
+        
+        return resp.entity(err).build();
+    }
+    
+    @Override
+    public Response getAllfriends(int userId) {
+        ResponseBuilder resp = null;
+        ArrayList<Error> err = new ArrayList<Error>();
+        ArrayList<User> result = new ArrayList<User>();
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        result = friendDAO.getFriendsFromStatus(userId, 1);
+
+        // Il n'y a pas d'erreur
+        if (result != null) {
+            return Response.status(Response.Status.OK).entity(result).build();
+        }
+
+        resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+        err.add(new Error(1, "internal server error"));
+        
+        return resp.entity(err).build();
+    }
 
 }

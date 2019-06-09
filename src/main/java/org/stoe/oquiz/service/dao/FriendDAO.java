@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.stoe.oquiz.entity.User;
 
@@ -121,6 +122,40 @@ public class FriendDAO extends DAO<User> {
 			result.close();
 		} catch (SQLException e) {
 			System.out.println("service.dao.FriendDAO.getStatus(): " + e.getMessage());
+        }
+        
+        return res;
+    }
+    
+    /**
+     * Retourne une liste d'amis de <userId> suivant leur statut <status>
+     * 
+     * @param userId
+     * @param status
+     * @return
+     */
+    public  ArrayList<User> getFriendsFromStatus(int userId, int status) {
+        String query = "SELECT user.* FROM friend JOIN user ON friend.friend_id = user.id WHERE friend.user_id = ? AND friend.status = ?";
+		PreparedStatement preparedStmt;
+        ResultSet result;
+        ArrayList<User> res = new ArrayList<User>();
+        
+        try {
+			preparedStmt = this.connect.prepareStatement(query);
+			preparedStmt.setLong(1, userId);
+			preparedStmt.setLong(2, status);
+			result = preparedStmt.executeQuery();
+			
+			while (result.next()) {
+				res.add(new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
+                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name")));
+            } 
+			
+			preparedStmt.close();
+			result.close();
+		} catch (SQLException e) {
+            result = null;
+			System.out.println("service.dao.FriendDAO.getFriendsFromStatus(): " + e.getMessage());
         }
         
         return res;
