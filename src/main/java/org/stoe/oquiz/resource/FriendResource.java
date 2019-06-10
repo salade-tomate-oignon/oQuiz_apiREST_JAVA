@@ -47,7 +47,7 @@ public class FriendResource {
     }
     
     /**
-     * Retourne la liste de toutes les demande d'ami de <userId> 
+     * Retourne la liste de tous les utilisateurs ayant fait une demande d'ami à <userId> 
      * 
      * @param userId
      * @return

@@ -1,6 +1,7 @@
 package org.stoe.oquiz.service.implementation;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -14,6 +15,9 @@ import org.stoe.oquiz.service.functionality.FriendInterface;
 
 public class FriendInterfaceImpl implements FriendInterface {
 
+    // **************************************************
+    // Public methods
+    // **************************************************
 	@Override
 	public Response friendRequest(int authorId, String pseudoFriend) {
         ResponseBuilder resp = null;
@@ -84,11 +88,11 @@ public class FriendInterfaceImpl implements FriendInterface {
     public Response getAllfriendRequests(int userId) {
         ResponseBuilder resp = null;
         ArrayList<Error> err = new ArrayList<Error>();
-        ArrayList<User> result = new ArrayList<User>();
+        Hashtable<Integer, User> result = new Hashtable<Integer, User>();
 
         // Accès à la table <friend>
         FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
-        result = friendDAO.getFriendsFromStatus(userId, 0);
+        result = friendDAO.getAllfriendRequests(userId);
 
         // Il n'y a pas d'erreur
         if (result != null) {
@@ -103,34 +107,25 @@ public class FriendInterfaceImpl implements FriendInterface {
     
     @Override
     public Response getAllBlockedfriends(int userId) {
-        ResponseBuilder resp = null;
-        ArrayList<Error> err = new ArrayList<Error>();
-        ArrayList<User> result = new ArrayList<User>();
-
-        // Accès à la table <friend>
-        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
-        result = friendDAO.getFriendsFromStatus(userId, -2);
-
-        // Il n'y a pas d'erreur
-        if (result != null) {
-            return Response.status(Response.Status.OK).entity(result).build();
-        }
-
-        resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        err.add(new Error(1, "internal server error"));
-        
-        return resp.entity(err).build();
+        return getFriendsFromStatus(userId, -2);
     }
     
     @Override
     public Response getAllfriends(int userId) {
+        return getFriendsFromStatus(userId, 1);
+    }
+
+    // **************************************************
+    // Private methods
+    // **************************************************
+    private Response getFriendsFromStatus(int userId, int status) {
         ResponseBuilder resp = null;
         ArrayList<Error> err = new ArrayList<Error>();
-        ArrayList<User> result = new ArrayList<User>();
+        Hashtable<Integer, User> result = new Hashtable<Integer, User>();
 
         // Accès à la table <friend>
         FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
-        result = friendDAO.getFriendsFromStatus(userId, 1);
+        result = friendDAO.getFriendsFromStatus(userId, status);
 
         // Il n'y a pas d'erreur
         if (result != null) {

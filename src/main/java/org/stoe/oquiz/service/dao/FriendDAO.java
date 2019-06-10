@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 import org.stoe.oquiz.entity.User;
 
@@ -134,11 +134,11 @@ public class FriendDAO extends DAO<User> {
      * @param status
      * @return
      */
-    public  ArrayList<User> getFriendsFromStatus(int userId, int status) {
+    public  Hashtable<Integer, User> getFriendsFromStatus(int userId, int status) {
         String query = "SELECT user.* FROM friend JOIN user ON friend.friend_id = user.id WHERE friend.user_id = ? AND friend.status = ?";
 		PreparedStatement preparedStmt;
         ResultSet result;
-        ArrayList<User> res = new ArrayList<User>();
+        Hashtable<Integer, User> res = new Hashtable<Integer, User>();
         
         try {
 			preparedStmt = this.connect.prepareStatement(query);
@@ -147,8 +147,42 @@ public class FriendDAO extends DAO<User> {
 			result = preparedStmt.executeQuery();
 			
 			while (result.next()) {
-				res.add(new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
-                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name")));
+                User user = new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
+                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name"));
+				res.put(result.getInt("id"), user);
+            } 
+			
+			preparedStmt.close();
+			result.close();
+		} catch (SQLException e) {
+            result = null;
+			System.out.println("service.dao.FriendDAO.getFriendsFromStatus(): " + e.getMessage());
+        }
+        
+        return res;
+    }
+    
+    /**
+     * Retourne la liste de tous les utilisateurs ayant fait une demande d'ami à <userId> 
+     * 
+     * @param userId
+     * @return
+     */
+    public  Hashtable<Integer, User> getAllfriendRequests(int userId) {
+        String query = "SELECT user.* FROM friend JOIN user ON friend.user_id = user.id WHERE friend.friend_id = ? AND friend.status = 0";
+		PreparedStatement preparedStmt;
+        ResultSet result;
+        Hashtable<Integer, User> res = new Hashtable<Integer, User>();
+        
+        try {
+			preparedStmt = this.connect.prepareStatement(query);
+			preparedStmt.setLong(1, userId);
+			result = preparedStmt.executeQuery();
+			
+			while (result.next()) {
+				User user = new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
+                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name"));
+				res.put(result.getInt("id"), user);
             } 
 			
 			preparedStmt.close();
