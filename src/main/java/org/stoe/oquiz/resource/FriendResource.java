@@ -32,7 +32,7 @@ public class FriendResource {
     // Public methods
     // **************************************************
     /**
-     * Envoie une demande d'ami
+     * Envoie une demande d'ami de <authorID> à <pseudoFriend>
      * 
      * @param authorID
      * @param pseudoFriend
@@ -44,5 +44,47 @@ public class FriendResource {
         FriendInterfaceImpl service = new FriendInterfaceImpl();
 
         return service.friendRequest(authorID, pseudoFriend);
+    }
+    
+    /**
+     * Retourne la liste de tous les utilisateurs ayant fait une demande d'ami à <userId> 
+     * 
+     * @param userId
+     * @return
+     */
+    @Path("user/{userId}/getAllfriendRequests")
+    @GET
+    public Response getAllfriendRequests(@PathParam("userId") int userId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.getAllfriendRequests(userId);
+    }
+
+    /**
+     * Retourne la liste de tous les utilisateurs bloqués par <userId> 
+     * 
+     * @param userId
+     * @return
+     */
+    @Path("user/{userId}/getAllBlockedfriends")
+    @GET
+    public Response getAllBlockedfriends(@PathParam("userId") int userId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.getAllBlockedfriends(userId);
+    }
+    
+    /**
+     * Retourne la liste de tous les amis de <userId> 
+     * 
+     * @param userId
+     * @return
+     */
+    @Path("user/{userId}/getAllfriends")
+    @GET
+    public Response getAllfriends(@PathParam("userId") int userId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.getAllfriends(userId);
     }
 }
