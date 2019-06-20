@@ -117,4 +117,19 @@ public class FriendResource {
 
         return service.unBlockUser(userId, otherUserId);
     }
+    
+    /**
+     * <userId> refuse la demande d'ami de <otherUserId>
+     * 
+     * @param userId
+     * @param otherUserId
+     * @return
+     */
+    @Path("user/{userId}/declineFriendRequest/otherUser/{otherUserId}")
+    @PUT
+    public Response declineFriendRequest(@PathParam("userId") int userId, @PathParam("otherUserId") int otherUserId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.declineFriendRequest(userId, otherUserId);
+    }
 }

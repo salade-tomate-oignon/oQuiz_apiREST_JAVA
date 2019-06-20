@@ -14,4 +14,6 @@ public interface FriendInterface {
     public Response blockUser(int userId, int otherUserId);
     
     public Response unBlockUser(int userId, int otherUserId);
+    
+    public Response declineFriendRequest(int userId, int otherUserId);
 }

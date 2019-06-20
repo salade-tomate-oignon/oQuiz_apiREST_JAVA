@@ -105,7 +105,7 @@ public class FriendDAO extends DAO<User> {
 			return false;
 
 		try {
-			String query = "UPDATE friend SET status=? WHERE user_id=? AND friend_id=?";
+			String query = "UPDATE friend SET status=?, date=NOW() WHERE user_id=? AND friend_id=?";
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, status);
