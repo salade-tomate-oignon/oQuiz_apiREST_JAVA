@@ -1,5 +1,6 @@
 package org.stoe.oquiz.resource;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -100,5 +101,20 @@ public class FriendResource {
         FriendInterfaceImpl service = new FriendInterfaceImpl();
 
         return service.blockUser(userId, otherUserId);
+    }
+
+    /**
+     * <userId> débloque <otherUserId>
+     * 
+     * @param userId
+     * @param otherUserId
+     * @return
+     */
+    @Path("user/{userId}/unBlockUser/otherUser/{otherUserId}")
+    @DELETE
+    public Response unBlockUser(@PathParam("userId") int userId, @PathParam("otherUserId") int otherUserId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.unBlockUser(userId, otherUserId);
     }
 }

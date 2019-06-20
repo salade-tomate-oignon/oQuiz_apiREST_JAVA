@@ -183,6 +183,25 @@ public class FriendInterfaceImpl implements FriendInterface {
 
         return Response.status(Response.Status.OK).build();
     }
+    
+    @Override
+    public Response unBlockUser(int userId, int otherUserId) {
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        
+        int status = friendDAO.getStatus(otherUserId, userId);
+        if(status >= -2) {
+            if(!friendDAO.deleteRow(otherUserId, userId)) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return Response.status(Response.Status.OK).build();
+    }
 
     // **************************************************
     // Private methods
