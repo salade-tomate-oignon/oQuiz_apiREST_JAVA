@@ -126,18 +126,20 @@ public class FriendDAO extends DAO<User> {
      * 
      * @param userId
      * @param friendId
+     * @param status
      * @return
      */
-    public boolean add(int userId, int friendId) {
+    public boolean add(int userId, int friendId, int status) {
         if (this.connect == null) 
 			return false;
 
 		try {
-			String query = "INSERT INTO friend (user_id, friend_id, status, date) VALUES(?, ?, 0, NOW())";
+			String query = "INSERT INTO friend (user_id, friend_id, status, date) VALUES(?, ?, ?, NOW())";
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, userId);
 			preparedStmt.setLong(2, friendId);
+			preparedStmt.setLong(3, status);
 			preparedStmt.execute();
 			preparedStmt.close();
 		} catch (SQLException e) {

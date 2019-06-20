@@ -101,7 +101,7 @@ public class FriendInterfaceImpl implements FriendInterface {
                 break;
 
             case -3:
-                if (friendDAO.add(authorId, friendId)) {
+                if (friendDAO.add(authorId, friendId, 0)) {
                     FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
                     this.socket.send(msg);
                     resp = Response.status(Response.Status.CREATED);
@@ -212,6 +212,42 @@ public class FriendInterfaceImpl implements FriendInterface {
         int status = friendDAO.getStatus(otherUserId, userId);
         if(status == 0) {
             if(!friendDAO.updateStatus(otherUserId, userId, -1)) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        else if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    @Override
+    public Response acceptFriendRequest(int userId, int otherUserId) {
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        
+        int status = friendDAO.getStatus(otherUserId, userId);
+        if(status == 0) {
+            int stts = friendDAO.getStatus(userId, otherUserId);
+
+            if(stts == -4) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            else if(stts == -3) {
+                if(!friendDAO.add(userId, otherUserId, 1))
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            else {
+                if(!friendDAO.updateStatus(userId, otherUserId, 1))
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            
+            if(!friendDAO.updateStatus(otherUserId, userId, 1)) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }

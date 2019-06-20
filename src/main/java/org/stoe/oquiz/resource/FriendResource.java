@@ -132,4 +132,19 @@ public class FriendResource {
 
         return service.declineFriendRequest(userId, otherUserId);
     }
+    
+    /**
+     * <userId> accepte la demande d'ami de <otherUserId>
+     * 
+     * @param userId
+     * @param otherUserId
+     * @return
+     */
+    @Path("user/{userId}/acceptFriendRequest/otherUser/{otherUserId}")
+    @PUT
+    public Response acceptFriendRequest(@PathParam("userId") int userId, @PathParam("otherUserId") int otherUserId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.acceptFriendRequest(userId, otherUserId);
+    }
 }
