@@ -10,4 +10,6 @@ public interface FriendInterface {
     public Response getAllBlockedfriends(int userId);
     
     public Response getAllfriends(int userId);
+    
+    public Response blockUser(int userId, int otherUserId);
 }

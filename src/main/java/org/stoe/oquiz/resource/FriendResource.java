@@ -2,6 +2,7 @@ package org.stoe.oquiz.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -84,5 +85,20 @@ public class FriendResource {
         FriendInterfaceImpl service = new FriendInterfaceImpl();
 
         return service.getAllfriends(userId);
+    }
+    
+    /**
+     * <userId> bloque <otherUserId>
+     * 
+     * @param userId
+     * @param otherUserId
+     * @return
+     */
+    @Path("user/{userId}/blockUser/otherUser/{otherUserId}")
+    @PUT
+    public Response blockUser(@PathParam("userId") int userId, @PathParam("otherUserId") int otherUserId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.blockUser(userId, otherUserId);
     }
 }

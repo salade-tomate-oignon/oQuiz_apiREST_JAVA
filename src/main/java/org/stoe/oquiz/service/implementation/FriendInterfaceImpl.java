@@ -99,7 +99,8 @@ public class FriendInterfaceImpl implements FriendInterface {
                 resp = Response.status(Response.Status.BAD_REQUEST);
                 err.add(new Error(5, "you have been blocked"));
                 break;
-            default:
+
+            case -3:
                 if (friendDAO.add(authorId, friendId)) {
                     FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
                     this.socket.send(msg);
@@ -108,6 +109,11 @@ public class FriendInterfaceImpl implements FriendInterface {
                     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
                     err.add(new Error(4, "internal server error"));
                 }
+                break;
+
+            default:
+                resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                err.add(new Error(4, "internal server error"));
                 break;
         }
 
@@ -143,6 +149,39 @@ public class FriendInterfaceImpl implements FriendInterface {
     @Override
     public Response getAllfriends(int userId) {
         return getFriendsFromStatus(userId, 1);
+    }
+    
+    @Override
+    public Response blockUser(int userId, int otherUserId) {
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+
+        // Relation <otherUserId> ==> <userId>
+        int status = friendDAO.getStatus(otherUserId, userId);
+        if(status == -3) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        
+        if(!friendDAO.updateStatus(otherUserId, userId, -2)) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        
+        // Relation <userId> ==> <otherUserId>
+        status = friendDAO.getStatus(userId, otherUserId);
+        if(status >= -2) {
+            if(!friendDAO.deleteRow(userId, otherUserId)) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return Response.status(Response.Status.OK).build();
     }
 
     // **************************************************

@@ -31,8 +31,7 @@ public class Bdd {
             Class.forName("com.mysql.jdbc.Driver");
             bdd = DriverManager.getConnection(Bdd.urlBDD, Bdd.userBDD, Bdd.passwordBDD);
 		} catch (Exception e) {
-			System.out.print("common.Bdd.getConnection(): "); 
-			System.out.println(e); 
+			System.out.print("common.Bdd.getConnection(): " + e.getMessage()); 
 		}
         
         return bdd;

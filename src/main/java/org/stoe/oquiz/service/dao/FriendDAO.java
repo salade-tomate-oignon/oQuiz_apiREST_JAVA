@@ -39,6 +39,33 @@ public class FriendDAO extends DAO<User> {
     }
 
     /**
+     * Supprime une ligne de la table <friend>
+     * 
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public boolean deleteRow(int userId, int friendId) {
+        if (this.connect == null) 
+			return false;
+
+		try {
+			String query = "DELETE FROM friend WHERE user_id=? AND friend_id=?";
+			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+			
+			preparedStmt.setLong(1, userId);
+			preparedStmt.setLong(2, friendId);
+			preparedStmt.execute();
+			preparedStmt.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.FriendDAO.deleteRow(): " + e.getMessage());
+			return false;
+		}
+		
+		return true;
+    }
+
+    /**
      * Met à jour la date d'envoi d'une demande d'ami
      * 
      * @param userId
@@ -54,11 +81,40 @@ public class FriendDAO extends DAO<User> {
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
 			preparedStmt.execute();
 			preparedStmt.close();
 		} catch (SQLException e) {
 			System.out.println("service.dao.FriendDAO.updateDate(): " + e.getMessage());
+			return false;
+		}
+		
+		return true;
+    }
+    
+    /**
+     * Met à jour le statut de la relation entre <userId> et <friendId>
+     * 
+     * @param userId
+     * @param friendId
+     * @param status
+     * @return
+     */
+    public boolean updateStatus(int userId, int friendId, int status) {
+        if (this.connect == null) 
+			return false;
+
+		try {
+			String query = "UPDATE friend SET status=? WHERE user_id=? AND friend_id=?";
+			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+			
+			preparedStmt.setLong(1, status);
+			preparedStmt.setLong(2, userId);
+			preparedStmt.setLong(3, friendId);
+			preparedStmt.execute();
+			preparedStmt.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.FriendDAO.updateStatus(): " + e.getMessage());
 			return false;
 		}
 		
@@ -81,7 +137,7 @@ public class FriendDAO extends DAO<User> {
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
 			preparedStmt.execute();
 			preparedStmt.close();
 		} catch (SQLException e) {
@@ -103,12 +159,12 @@ public class FriendDAO extends DAO<User> {
         String query = "SELECT status FROM friend WHERE user_id = ? AND friend_id = ?";
 		PreparedStatement preparedStmt;
         ResultSet result;
-        int res = -3;
+        int res = -4;
         
         try {
 			preparedStmt = this.connect.prepareStatement(query);
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
 			result = preparedStmt.executeQuery();
 			
 			if (result.next()) {
@@ -119,7 +175,7 @@ public class FriendDAO extends DAO<User> {
 			
 			preparedStmt.close();
 			result.close();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			System.out.println("service.dao.FriendDAO.getStatus(): " + e.getMessage());
         }
         
