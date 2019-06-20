@@ -1,19 +1,43 @@
 package org.stoe.oquiz.service.implementation;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.stoe.oquiz.common.Bdd;
 import org.stoe.oquiz.common.Error;
+import org.stoe.oquiz.entity.FriendSocketMessage;
 import org.stoe.oquiz.entity.User;
 import org.stoe.oquiz.service.dao.FriendDAO;
 import org.stoe.oquiz.service.dao.UserDAO;
 import org.stoe.oquiz.service.functionality.FriendInterface;
+import org.stoe.oquiz.websocket.client.FriendSocketClient;
 
 public class FriendInterfaceImpl implements FriendInterface {
+    private FriendSocketClient socket;
+
+    // **************************************************
+    // Constructors
+    // **************************************************
+	/**
+	 * Default Constructor
+	 */
+	public FriendInterfaceImpl() {
+        super();
+        this.setSocket(new FriendSocketClient());
+    }
+    
+    // **************************************************
+    // Getters and Setters
+    // **************************************************
+    public FriendSocketClient getSocket() {
+		return socket;
+	}
+
+	public void setSocket(FriendSocketClient socket) {
+		this.socket = socket;
+	}
 
     // **************************************************
     // Public methods
@@ -51,6 +75,8 @@ public class FriendInterfaceImpl implements FriendInterface {
             case 0:
                 // <authorId> renvoie une demande d'ami
                 if (friendDAO.updateDate(authorId, friendId)) {
+                    FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
+                    this.socket.send(msg);
                     resp = Response.status(Response.Status.OK);
                 } else {
                     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
@@ -60,6 +86,8 @@ public class FriendInterfaceImpl implements FriendInterface {
             case -1:
                 // <authorId> renvoie une demande d'ami après un refus de <friendId>
                 if (friendDAO.updateDate(authorId, friendId)) {
+                    FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
+                    this.socket.send(msg);
                     resp = Response.status(Response.Status.OK);
                 } else {
                     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
@@ -73,6 +101,8 @@ public class FriendInterfaceImpl implements FriendInterface {
                 break;
             default:
                 if (friendDAO.add(authorId, friendId)) {
+                    FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
+                    this.socket.send(msg);
                     resp = Response.status(Response.Status.CREATED);
                 } else {
                     resp = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
@@ -88,7 +118,7 @@ public class FriendInterfaceImpl implements FriendInterface {
     public Response getAllfriendRequests(int userId) {
         ResponseBuilder resp = null;
         ArrayList<Error> err = new ArrayList<Error>();
-        Hashtable<Integer, User> result = new Hashtable<Integer, User>();
+        ArrayList<User> result = new ArrayList<User>();
 
         // Accès à la table <friend>
         FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
@@ -121,7 +151,7 @@ public class FriendInterfaceImpl implements FriendInterface {
     private Response getFriendsFromStatus(int userId, int status) {
         ResponseBuilder resp = null;
         ArrayList<Error> err = new ArrayList<Error>();
-        Hashtable<Integer, User> result = new Hashtable<Integer, User>();
+        ArrayList<User> result = new ArrayList<User>();
 
         // Accès à la table <friend>
         FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
@@ -136,6 +166,13 @@ public class FriendInterfaceImpl implements FriendInterface {
         err.add(new Error(1, "internal server error"));
         
         return resp.entity(err).build();
+    }
+
+    private User findFriendDataFromId(int friendId) {
+        UserDAO userDAO = new UserDAO(Bdd.getConnection());
+        User data = userDAO.find(friendId);
+
+        return new User(data.getId(), data.getPseudo());
     }
 
 }

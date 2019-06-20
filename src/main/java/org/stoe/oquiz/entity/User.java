@@ -25,6 +25,12 @@ public class User {
 		super();
 		this.setId(id);
 	}
+    
+    public User(int id, String pseudo) {
+		super();
+		this.setId(id);
+        this.setPseudo(pseudo);
+	}
 
 	public User(String pseudo, String password) {
 		super();
