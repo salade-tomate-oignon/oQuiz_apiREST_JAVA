@@ -68,7 +68,33 @@ public class UserDAO extends DAO<User> {
 
 	@Override
 	public User find(int id) {
-		return null;
+		User res = null;
+		String query = "SELECT * FROM user WHERE id = ?";
+		PreparedStatement preparedStmt;
+		ResultSet result;
+
+		if (this.connect == null) 
+			return res;
+		
+		try {
+			preparedStmt = this.connect.prepareStatement(query);
+			preparedStmt.setLong(1, id);
+			result = preparedStmt.executeQuery();
+			
+			if (result.next()) {
+				res = new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
+					result.getString("pseudo"), result.getString("email"), result.getString("avatar_name"));
+			} else {
+				res = new User(0);
+			}
+			
+			preparedStmt.close();
+			result.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.UserDAO.find(): " + e.getMessage());
+		}
+
+		return res;
     }
 
 	/**

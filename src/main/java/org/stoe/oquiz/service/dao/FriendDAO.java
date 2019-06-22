@@ -4,8 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Hashtable;
-
+import java.util.ArrayList;
 import org.stoe.oquiz.entity.User;
 
 public class FriendDAO extends DAO<User> {
@@ -40,6 +39,33 @@ public class FriendDAO extends DAO<User> {
     }
 
     /**
+     * Supprime une ligne de la table <friend>
+     * 
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public boolean deleteRow(int userId, int friendId) {
+        if (this.connect == null) 
+			return false;
+
+		try {
+			String query = "DELETE FROM friend WHERE user_id=? AND friend_id=?";
+			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+			
+			preparedStmt.setLong(1, userId);
+			preparedStmt.setLong(2, friendId);
+			preparedStmt.execute();
+			preparedStmt.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.FriendDAO.deleteRow(): " + e.getMessage());
+			return false;
+		}
+		
+		return true;
+    }
+
+    /**
      * Met à jour la date d'envoi d'une demande d'ami
      * 
      * @param userId
@@ -55,11 +81,40 @@ public class FriendDAO extends DAO<User> {
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
 			preparedStmt.execute();
 			preparedStmt.close();
 		} catch (SQLException e) {
 			System.out.println("service.dao.FriendDAO.updateDate(): " + e.getMessage());
+			return false;
+		}
+		
+		return true;
+    }
+    
+    /**
+     * Met à jour le statut de la relation entre <userId> et <friendId>
+     * 
+     * @param userId
+     * @param friendId
+     * @param status
+     * @return
+     */
+    public boolean updateStatus(int userId, int friendId, int status) {
+        if (this.connect == null) 
+			return false;
+
+		try {
+			String query = "UPDATE friend SET status=?, date=NOW() WHERE user_id=? AND friend_id=?";
+			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
+			
+			preparedStmt.setLong(1, status);
+			preparedStmt.setLong(2, userId);
+			preparedStmt.setLong(3, friendId);
+			preparedStmt.execute();
+			preparedStmt.close();
+		} catch (SQLException e) {
+			System.out.println("service.dao.FriendDAO.updateStatus(): " + e.getMessage());
 			return false;
 		}
 		
@@ -71,18 +126,20 @@ public class FriendDAO extends DAO<User> {
      * 
      * @param userId
      * @param friendId
+     * @param status
      * @return
      */
-    public boolean add(int userId, int friendId) {
+    public boolean add(int userId, int friendId, int status) {
         if (this.connect == null) 
 			return false;
 
 		try {
-			String query = "INSERT INTO friend (user_id, friend_id, status, date) VALUES(?, ?, 0, NOW())";
+			String query = "INSERT INTO friend (user_id, friend_id, status, date) VALUES(?, ?, ?, NOW())";
 			PreparedStatement preparedStmt = this.connect.prepareStatement(query);
 			
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
+			preparedStmt.setLong(3, status);
 			preparedStmt.execute();
 			preparedStmt.close();
 		} catch (SQLException e) {
@@ -104,12 +161,12 @@ public class FriendDAO extends DAO<User> {
         String query = "SELECT status FROM friend WHERE user_id = ? AND friend_id = ?";
 		PreparedStatement preparedStmt;
         ResultSet result;
-        int res = -3;
+        int res = -4;
         
         try {
 			preparedStmt = this.connect.prepareStatement(query);
 			preparedStmt.setLong(1, userId);
-			preparedStmt.setLong (2, friendId);
+			preparedStmt.setLong(2, friendId);
 			result = preparedStmt.executeQuery();
 			
 			if (result.next()) {
@@ -120,7 +177,7 @@ public class FriendDAO extends DAO<User> {
 			
 			preparedStmt.close();
 			result.close();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			System.out.println("service.dao.FriendDAO.getStatus(): " + e.getMessage());
         }
         
@@ -134,11 +191,11 @@ public class FriendDAO extends DAO<User> {
      * @param status
      * @return
      */
-    public  Hashtable<Integer, User> getFriendsFromStatus(int userId, int status) {
-        String query = "SELECT user.* FROM friend JOIN user ON friend.friend_id = user.id WHERE friend.user_id = ? AND friend.status = ?";
+    public  ArrayList<User> getFriendsFromStatus(int userId, int status) {
+        String query = "SELECT user.* FROM friend JOIN user ON friend.user_id = user.id WHERE friend.friend_id = ? AND friend.status = ?";
 		PreparedStatement preparedStmt;
         ResultSet result;
-        Hashtable<Integer, User> res = new Hashtable<Integer, User>();
+        ArrayList<User> res = new ArrayList<User>();
         
         try {
 			preparedStmt = this.connect.prepareStatement(query);
@@ -147,9 +204,8 @@ public class FriendDAO extends DAO<User> {
 			result = preparedStmt.executeQuery();
 			
 			while (result.next()) {
-                User user = new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
-                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name"));
-				res.put(result.getInt("id"), user);
+                User user = new User(result.getInt("id"), result.getString("pseudo"));
+				res.add(user);
             } 
 			
 			preparedStmt.close();
@@ -168,11 +224,11 @@ public class FriendDAO extends DAO<User> {
      * @param userId
      * @return
      */
-    public  Hashtable<Integer, User> getAllfriendRequests(int userId) {
-        String query = "SELECT user.* FROM friend JOIN user ON friend.user_id = user.id WHERE friend.friend_id = ? AND friend.status = 0";
+    public  ArrayList<User> getAllfriendRequests(int userId) {
+        String query = "SELECT user.* FROM friend JOIN user ON friend.user_id = user.id WHERE friend.friend_id = ? AND friend.status = 0 ORDER BY friend.date DESC";
 		PreparedStatement preparedStmt;
         ResultSet result;
-        Hashtable<Integer, User> res = new Hashtable<Integer, User>();
+        ArrayList<User> res = new ArrayList<User>();
         
         try {
 			preparedStmt = this.connect.prepareStatement(query);
@@ -180,9 +236,8 @@ public class FriendDAO extends DAO<User> {
 			result = preparedStmt.executeQuery();
 			
 			while (result.next()) {
-				User user = new User(result.getInt("id"), result.getString("first_name"), result.getString("last_name"),
-                result.getString("pseudo"), result.getString("email"), result.getString("avatar_name"));
-				res.put(result.getInt("id"), user);
+				User user = new User(result.getInt("id"), result.getString("pseudo"));
+				res.add(user);
             } 
 			
 			preparedStmt.close();
