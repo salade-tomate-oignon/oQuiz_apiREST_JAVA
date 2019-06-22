@@ -85,7 +85,7 @@ public class FriendInterfaceImpl implements FriendInterface {
                 break;
             case -1:
                 // <authorId> renvoie une demande d'ami après un refus de <friendId>
-                if (friendDAO.updateDate(authorId, friendId)) {
+                if (friendDAO.updateStatus(authorId, friendId, 0)) {
                     FriendSocketMessage msg = new FriendSocketMessage("on hold", "API's token", "", authorId, friendId, this.findFriendDataFromId(authorId));
                     this.socket.send(msg);
                     resp = Response.status(Response.Status.OK);
@@ -197,6 +197,30 @@ public class FriendInterfaceImpl implements FriendInterface {
             }
         }
         if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    @Override
+    public Response removeFriend(int userId, int otherUserId) {
+
+        // Accès à la table <friend>
+        FriendDAO friendDAO = new FriendDAO(Bdd.getConnection());
+        
+        int status = friendDAO.getStatus(userId, otherUserId);
+        if(status == -4) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        if(status < 1) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        if(!friendDAO.deleteRow(otherUserId, userId)) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        if(!friendDAO.deleteRow(userId, otherUserId)) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 

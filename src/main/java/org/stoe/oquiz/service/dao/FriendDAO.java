@@ -192,7 +192,7 @@ public class FriendDAO extends DAO<User> {
      * @return
      */
     public  ArrayList<User> getFriendsFromStatus(int userId, int status) {
-        String query = "SELECT user.* FROM friend JOIN user ON friend.friend_id = user.id WHERE friend.user_id = ? AND friend.status = ?";
+        String query = "SELECT user.* FROM friend JOIN user ON friend.user_id = user.id WHERE friend.friend_id = ? AND friend.status = ?";
 		PreparedStatement preparedStmt;
         ResultSet result;
         ArrayList<User> res = new ArrayList<User>();

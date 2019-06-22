@@ -119,6 +119,21 @@ public class FriendResource {
     }
     
     /**
+     * Retire un ami
+     * 
+     * @param userId
+     * @param otherUserId
+     * @return
+     */
+    @Path("user/{userId}/removeFriend/otherUser/{otherUserId}")
+    @DELETE
+    public Response removeFriend(@PathParam("userId") int userId, @PathParam("otherUserId") int otherUserId) {
+        FriendInterfaceImpl service = new FriendInterfaceImpl();
+
+        return service.removeFriend(userId, otherUserId);
+    }
+    
+    /**
      * <userId> refuse la demande d'ami de <otherUserId>
      * 
      * @param userId
